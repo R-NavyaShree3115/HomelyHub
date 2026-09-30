@@ -1,0 +1,25 @@
+body{
+  background-color: lightblue;
+  padding: 25px;
+  text-decoration-color: black;
+  
+}
+.card{
+  background-color: aliceblue;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px gray;
+  text-decoration-color: black;
+  margin: 15px 0;
+  
+}
+.h2{
+  text-decoration-color: black;
+}
+button{
+  background-color: blue;
+  color:white;
+  font-size: 20px;
+  padding: 10px 15px;
+  cursor:pointer;
+}
