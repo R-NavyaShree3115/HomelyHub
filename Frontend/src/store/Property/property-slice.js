@@ -20,9 +20,10 @@ const propertySlice = createSlice({
             state.loading=true;
         },
         getProperties(state,action){
-            state.properties=action.payload.data;
-            state.totalProperties=action.payload.all_properties;
-            state.load=false;//req finished 
+            state.properties = Array.isArray(action.payload?.data) ? action.payload.data : [];
+            state.totalProperties = action.payload?.all_properties ?? state.properties.length;
+            state.loading = false;
+            state.error = null;
         },
         updateSearchParams:(state,action)=>{
             state.searchParams = Object.keys(action.payload).length===0?{}:{
@@ -31,7 +32,8 @@ const propertySlice = createSlice({
             }
         },
         getErrors(state,action){
-            state.error=action.payload
+            state.loading = false;
+            state.error = action.payload;
         }
     }
 })

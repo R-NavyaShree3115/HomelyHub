@@ -21,13 +21,13 @@ export const getAllProperties =()=>async(dispatch,getState)=>{
         console.log(searchParams)
         const response = await axiosInstance.get('/v1/rent/property',{params:{...searchParams}
     })
-    if(!response){
-        throw new Error("Could not fetch any Properties")
+    const { data } = response;
+    if (!Array.isArray(data?.data)) {
+        throw new Error("The property service is unavailable.");
     }
-    const {data}=response;
-    console.log("Properties",response.data);
-    dispatch(propertyAction.getProperties(data))
+    console.log("Properties", response.data);
+    dispatch(propertyAction.getProperties(data));
     }catch(error){
-        dispatch(propertyAction.getErrors(error.message))
+        dispatch(propertyAction.getErrors(error.message));
     }
 }
