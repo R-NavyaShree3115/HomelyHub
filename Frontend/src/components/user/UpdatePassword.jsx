@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updatePassword } from "../../store/User/user-action";
+import { updatePassword } from "../../store/user/user-action";
 import toast from "react-hot-toast";
-import { userActions } from "../../store/User/user-slice";
+import { userActions } from "../../store/user/user-slice";
 
 const UpdatePassword = () => {
   const dispatch = useDispatch();
