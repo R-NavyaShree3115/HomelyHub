@@ -2,21 +2,25 @@
 // Images are NOT kept in our database. We send them to
 // ImageKit and save only the link they give back.
 import ImageKit from "imagekit";
-import dotenv from "dotenv";
+let imagekit;
 
+const getImageKitClient = () => {
+  const { IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, IMAGEKIT_URL_ENDPOINT } = process.env;
+  if (!IMAGEKIT_PUBLIC_KEY || !IMAGEKIT_PRIVATE_KEY || !IMAGEKIT_URL_ENDPOINT) {
+    const error = new Error("Image upload service is not configured");
+    error.code = "IMAGEKIT_NOT_CONFIGURED";
+    throw error;
+  }
 
-// load the keys from .env before we use them
-dotenv.config({ path: ".env" });
-// Connect once here, then every file can import and use it.
-// publicKey  - can be seen by anyone
-// privateKey - secret, never on GitHub
-// urlEndpoint - our folder address on ImageKit
-let imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-});
+  if (!imagekit) {
+    imagekit = new ImageKit({
+      publicKey: IMAGEKIT_PUBLIC_KEY,
+      privateKey: IMAGEKIT_PRIVATE_KEY,
+      urlEndpoint: IMAGEKIT_URL_ENDPOINT,
+    });
+  }
 
+  return imagekit;
+};
 
-// authController uses this as imagekit.upload(...)
-export default imagekit;
+export default getImageKitClient;

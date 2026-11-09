@@ -4,7 +4,7 @@
 
 import { Property } from "../Models/propertyModel.js";
 import { APIFeatures } from "../utils/APIFeatures.js";
-import imagekit from "../utils/ImagekitIO.js";
+import getImageKitClient from "../utils/ImagekitIO.js";
 
 
 // get all properties
@@ -105,7 +105,7 @@ const createProperty = async (req, res) => {
         });
       }
 
-      const result = await imagekit.upload({
+      const result = await getImageKitClient().upload({
         file: image.url,
         fileName: `property_${Date.now()}_${index}.jpg`,
         folder: "property_images",
@@ -137,7 +137,12 @@ const createProperty = async (req, res) => {
     res.status(201).json({ status: "success", data: { data: property } });
   } catch (error) {
     console.error("Error creating property", error);
-    res.status(400).json({ status: "fail", message: error.message });
+    res.status(error.code === "IMAGEKIT_NOT_CONFIGURED" ? 503 : 400).json({
+      status: "fail",
+      message: error.code === "IMAGEKIT_NOT_CONFIGURED"
+        ? "Image uploads are not configured. Please contact the service owner."
+        : error.message,
+    });
   }
 };
 

@@ -5,7 +5,7 @@
 import { User } from "../Models/userModel.js";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
-import imagekit from "../utils/ImagekitIO.js";
+import getImageKitClient from "../utils/ImagekitIO.js";
 import {
   forgotPasswordMailGenContent,
   sendMail,
@@ -266,7 +266,7 @@ const updateMe = async (req, res) => {
     if (sentPhoto) {
 
       const uploadResponse =
-        await imagekit.upload({
+        await getImageKitClient().upload({
           file: req.body.avatar,
           fileName: `avatar_${Date.now()}.jpg`,
           folder: "avatars",
