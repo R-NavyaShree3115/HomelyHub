@@ -12,6 +12,7 @@ import {router} from "./routes/userRoutes.js";//import the router from userRoute
 
 
 dotenv.config();//load environment variables from .env file
+dotenv.config({ path: "/etc/secrets/.env" });
 
 const app=express();//create an instance of the express application
 
