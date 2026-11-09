@@ -26,6 +26,8 @@ const initialamenities = [
 ];
 
 const AmenitiesField = ({ form }) => {
+  if (!form?.Field) return null;
+
   return (
     <div className="perks-container">
       <h4 className="perks-header">Amenities</h4>

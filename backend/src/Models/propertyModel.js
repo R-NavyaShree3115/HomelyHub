@@ -7,10 +7,12 @@ export const propertySchema = new mongoose.Schema({
     propertyName: {
         type: String,
         required: [true, "Please enter property name"],
+        trim: true,
     },
     description: {
         type: String,
         required: [true, "Please enter property description"],
+        trim: true,
     },
     extraInfo: {
         type: String,
@@ -19,68 +21,60 @@ export const propertySchema = new mongoose.Schema({
     propertyType: {
         type: String,
         required: [true, "Please enter property type"],
-        enum: {
-            values: ["Flat", "house", "Hotel", "Guest house"],
-            message: "Property type must be either: Flat, House, Hotel, or Guest house",
-            default: "house"
+        enum: ["Flat", "House", "Hotel", "Guest House"],
+    },
+    roomType: {
+        type: String,
+        enum: ["Anytype", "Room", "Entire Home"],
+        default: "Anytype",
+    },
+    maximumGuest: {
+        type: Number,
+        required: [true, "Please enter maximum guests"],
+        min: 1,
+    },
+    maximumGuests: Number,
+    amenities: [
+        {
+            name: { type: String, required: true, trim: true },
+            icon: { type: String, required: true, trim: true },
         },
-        roomType: {
-            type: String,
-            enum:{
-                values: ["Anytype", "Room", "Entire Home"],
-               default: "Anytype"
-            },
+    ],
+    amenties: [
+        {
+            name: String,
+            icon: String,
         },
-        maximumGuests: {
-            type: Number,
-            required: [true, "Please enter maximum guests"],
-        },
-        amenties:[
+    ],
+    images: {
+        type: [
             {
-                name:{
-                    type:String,
-                    required:true,
-                    enum:["Wifi","TV","Air conditioning","Kitchen","Heating","Washer","Dryer","Free parking on premises","Hot tub","Pool"]
-                },
-                
-                icon:{
-                    type:String,
-                    required:true
-                }
-            }
-        ],},
-        images:{
-            type:[
-                {
-                    public_id:{
-                        type:String,
-                        required:true
-                    },
-                    url:{
-                        type:String,
-                        required:true
-                    }
-                }
-            ],
-            validate:{
-                validator:function(val){
-                    return val.length>6;
-                },
-                message:"Please upload at least 6 images"
-            }
+                public_id: { type: String, required: true },
+                url: { type: String, required: true },
+            },
+        ],
+        validate: {
+            validator: function (images) {
+                return images.length >= 6;
+            },
+            message: "Please upload at least 6 images",
         },
-    pricePerNight: {
+    },
+    price: {
         type: Number,
         required: [true, "Please enter price per night"],
-        default:500
+        min: 0,
+    },
+    pricePerNight: {
+        type: Number,
+        min: 0,
     },
     address: {
-        type: String,
-        city:String,
-        state:String,
-        country:String,
-        zipCode:String,
-        required: [true, "Please enter property address"],
+        area: { type: String, required: true, trim: true },
+        city: { type: String, required: true, trim: true },
+        state: { type: String, required: true, trim: true },
+        country: { type: String, trim: true, default: "India" },
+        pincode: { type: String, required: true, trim: true },
     },
     currentBookings: [
         {
@@ -116,21 +110,27 @@ export const propertySchema = new mongoose.Schema({
         type: String,   
         default: "13:00 ",
     },
-
-})
+}, { timestamps: true });
 
 // Mongoose middleware to generate slug before saving the property
 propertySchema.pre("save", function () {
-    this.slug = slugify(this.propertyName, { lower: true });
-    //next();
+    if (this.isModified("propertyName")) {
+        this.slug = slugify(this.propertyName, { lower: true });
+    }
+    if (this.price == null && this.pricePerNight != null) {
+        this.price = this.pricePerNight;
+    }
+    if (this.maximumGuest == null && this.maximumGuests != null) {
+        this.maximumGuest = this.maximumGuests;
+    }
+    if (this.amenities.length === 0 && this.amenties.length > 0) {
+        this.amenities = this.amenties;
+    }
+    if (this.address?.city) {
+        this.address.city = this.address.city.toLowerCase().replace(/\s+/g, "");
+    }
 });
-
-// Mongoose middleware to convert city name to lowercase and remove spaces before saving the property
-propertySchema.pre("save", async function () {
-    this.address.city = this.address.city.toLowerCase().replace(" ","");
-    //next();
-})
 
 // Mongoose middleware to hash the password before saving the user
 //const Property =  mongoose.model("Property", propertySchema);
-export const Property =mongoose.models.Property || mongoose.model("Property",propertySchema);
+export const Property = mongoose.models.Property || mongoose.model("Property", propertySchema);

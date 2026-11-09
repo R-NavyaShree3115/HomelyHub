@@ -16,18 +16,20 @@ const getProperties = async(req,res)=>{
       .search()
       .paginate();
 
-      const allProperties = await Property.find();
-
-      const doc = await features.query;
+      const [doc, allProperties] = await Promise.all([
+        features.query,
+        Property.countDocuments(),
+      ]);
 
       res.status(200).json({
         status:"success",
         no_of_responses: doc.length,
+        all_properties: allProperties,
         data:doc
       })
     }catch(error){
         console.error("Error searching properties: ", error)
-            res.status(500).json({error:"Internal server Error"})
+        res.status(500).json({status:"fail", message:"Unable to fetch properties"})
     }
 }
 
@@ -39,6 +41,9 @@ const getProperties = async(req,res)=>{
 const getProperty = async(req,res)=>{
     try{
        const property = await Property.findById(req.params.id);
+       if (!property) {
+         return res.status(404).json({ status: "fail", message: "Property not found" });
+       }
 
        res.status(200).json({
         status:"success",
@@ -77,6 +82,14 @@ const createProperty = async (req, res) => {
       price,
       images,
     } = req.body;
+
+    if (!Array.isArray(images) || images.length < 6) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Please upload at least 6 images",
+      });
+    }
+
     // an empty list, we will fill it as each photo goes up
     const uploadedImages = [];
 
@@ -84,10 +97,17 @@ const createProperty = async (req, res) => {
     // ImageKit, which stores the file and hands back a url and
     // an id. The photo itself never enters our database.
     // await inside the loop = wait for this photo, then next.
-    for (const image of images) {
+    for (const [index, image] of images.entries()) {
+      if (!image?.url || typeof image.url !== "string") {
+        return res.status(400).json({
+          status: "fail",
+          message: "Each image must include a valid URL or image data",
+        });
+      }
+
       const result = await imagekit.upload({
         file: image.url,
-        fileName: `property_${Date.now()}.jpg`,
+        fileName: `property_${Date.now()}_${index}.jpg`,
         folder: "property_images",
       });
 
@@ -105,19 +125,19 @@ const createProperty = async (req, res) => {
       amenities,
       checkInTime,
       checkOutTime,
-      maximumGuest,
-      price,
+      maximumGuest: Number(maximumGuest),
+      price: Number(price),
       images: uploadedImages,
       // The owner comes from the token, NOT from req.body.
       // If we trusted the body, anyone could add a house under
       // someone else's name.
-      userId: req.user.id,
+      userId: req.user._id,
     });
 
-    res.status(200).json({ status: "success", data: { data: property } });
+    res.status(201).json({ status: "success", data: { data: property } });
   } catch (error) {
-    console.error("Error searching properties", error);
-    res.status(404).json({ status: "fail", message: error.message });
+    console.error("Error creating property", error);
+    res.status(400).json({ status: "fail", message: error.message });
   }
 };
 

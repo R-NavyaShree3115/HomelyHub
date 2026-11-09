@@ -4,16 +4,30 @@ import ProgressSteps from "../ProgressSteps";
 import MyAccomodation from "./MyAccomodation";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner";
-import { STATIC_ACCOMODATION } from "../../data/staticData";
+import { axiosInstance } from "../../utils/axios";
 
 const Accomodation = () => {
-  // STATIC: was `useSelector((state) => state.accomodation)`.
-  // TODO: replace with your own accomodation fetching logic.
-  const [accomodation] = useState(STATIC_ACCOMODATION);
-  const [loading] = useState(false);
+  const [accomodation, setAccomodation] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // TODO: fetch the user's accomodations here and set them above.
+    let active = true;
+    axiosInstance.get("/v1/rent/property/mine")
+      .then(({ data }) => {
+        if (active) setAccomodation(Array.isArray(data.data) ? data.data : []);
+      })
+      .catch((requestError) => {
+        if (active) {
+          setError(requestError.response?.status === 401
+            ? "Sign in to manage your listings."
+            : "Unable to load your listings right now.");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, []);
 
   return (
@@ -24,7 +38,8 @@ const Accomodation = () => {
           <button className="add-new-place">+ Add new place</button>
         </Link>
         {loading && <LoadingSpinner />}
-        {accomodation.length === 0 && !loading && (
+        {error && !loading && <p role="alert">{error}</p>}
+        {accomodation.length === 0 && !loading && !error && (
           <p>Accomodation not available</p>
         )}
         {accomodation.length > 0 && !loading && (

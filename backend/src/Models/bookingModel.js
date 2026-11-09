@@ -53,7 +53,7 @@ bookingSchema.pre(/^find/,function(){
     this.populate("user");
     this.populate({
         path:"property",
-        select: "maximumGuests images propertyName address"
+        select: "maximumGuest images propertyName address"
     });
     
 });

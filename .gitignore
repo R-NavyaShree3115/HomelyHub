@@ -10,6 +10,7 @@ node_modules/
 # Backend environment file
 backend/.env
 backend/.env.*
+!backend/.env.example
 
 # Frontend environment files
 frontend/.env

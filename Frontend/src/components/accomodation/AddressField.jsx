@@ -1,6 +1,8 @@
 import React from "react";
 
 export const AddressField = ({ form }) => {
+  if (!form?.Field) return null;
+
   return (
     <div className="address-container ">
       <h4 className="address-header">Address</h4>

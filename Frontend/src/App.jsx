@@ -27,8 +27,8 @@ import NotFound from "./components/NotFound";
 import AiTripPlanner from "./components/aiTripPlanner/AiTripPlanner";
 import { useDispatch,useSelector } from "react-redux";
 import { useEffect } from "react";
-import { userActions } from "./store/user/user-slice";
 import { currentUser } from "./store/user/user-action";
+import { userActions } from "./store/user/user-slice";
 
 function App() {
   const dispatch = useDispatch();

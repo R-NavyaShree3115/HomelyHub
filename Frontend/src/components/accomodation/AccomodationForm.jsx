@@ -6,6 +6,7 @@ import { AddressField } from "./AddressField";
 import AmenitiesField from "./AmenitiesField";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { axiosInstance } from "../../utils/axios";
 
 const Section = ({ icon, title, hint, children }) => (
   <section className="accf-card">
@@ -21,9 +22,7 @@ const Section = ({ icon, title, hint, children }) => (
 const AccomodationForm = () => {
   const navigate = useNavigate();
 
-  // STATIC: was `useSelector((state) => state.accomodation)`.
-  // TODO: replace with your own create-accomodation logic.
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
   const form = useForm({
@@ -42,10 +41,21 @@ const AccomodationForm = () => {
       price: "",
     },
     onSubmit: async ({ value }) => {
+      if (!value.name.trim() || !value.description.trim()) {
+        toast.error("Add a property name and description");
+        return;
+      }
+      if (value.images.length < 6) {
+        toast.error("Please add at least 6 photos");
+        return;
+      }
+      if (!value.address.city || !value.address.state || !value.address.pincode) {
+        toast.error("Complete the property address");
+        return;
+      }
+
+      setLoading(true);
       try {
-        console.log(value);
-        // TODO: add your "create accomodation" logic here.
-        // The payload the original app used:
         const newAccomodation = {
           propertyName: value.name,
           description: value.description,
@@ -57,15 +67,16 @@ const AccomodationForm = () => {
           amenities: value.amenities,
           checkInTime: value.checkIn,
           checkOutTime: value.checkOut,
-          maximumGuest: value.maximumGuest,
-          price: value.price,
+          maximumGuest: Number(value.maximumGuest),
+          price: Number(value.price),
         };
-        console.log(newAccomodation);
+        await axiosInstance.post("/v1/rent/property", newAccomodation);
         toast.success("New Property Created Successfully");
         navigate("/accomodation");
       } catch (error) {
-        toast.error(error.message);
-        console.error(error.message);
+        toast.error(error.response?.data?.message || "Could not publish the property");
+      } finally {
+        setLoading(false);
       }
     },
   });
