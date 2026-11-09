@@ -70,9 +70,11 @@ const createTripPlan = async (req, res) => {
         });
     } catch (error) {
         console.error("Trip planning failed", error);
-        return res.status(502).json({
+        return res.status(error.code === "AI_PROVIDER_NOT_CONFIGURED" ? 503 : 502).json({
             status: "fail",
-            message: "Unable to generate a trip plan right now. Please try again.",
+            message: error.code === "AI_PROVIDER_NOT_CONFIGURED"
+                ? "AI trip planning is not configured. Please contact the service owner."
+                : "Unable to generate a trip plan right now. Please try again.",
         });
     }
 };

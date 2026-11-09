@@ -1,4 +1,4 @@
-import groq from "./aiClient.js";
+import getGroqClient from "./aiClient.js";
 
 const systemPrompt = `You are a travel planner for a holiday rental website in India.
 
@@ -31,7 +31,7 @@ const planTrip = async (trip) => {
 - Interests: ${trip.interests.join(", ")}`;
 
 //calling groq
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroqClient().chat.completions.create({
     model: "openai/gpt-oss-120b",
     max_tokens: 2000,
     response_format: { type: "json_object" },

@@ -1,4 +1,4 @@
-import groq from "./aiClient.js";
+import getGroqClient from "./aiClient.js";
 
 const systemPrompt = `Write a natural, professional vacation-rental description using only the supplied facts. Do not invent amenities, views, distances, or nearby attractions. Use three or four complete sentences, mention the location naturally, and return only the description.`;
 
@@ -18,7 +18,7 @@ const generatePropertyDescription = async (property) => {
     `Host information: ${property.extraInfo || "Not provided"}`,
   ].join("\n");
 
-  const completion = await groq.chat.completions.create({
+  const completion = await getGroqClient().chat.completions.create({
     model: "openai/gpt-oss-120b",
     max_tokens: 500,
     messages: [

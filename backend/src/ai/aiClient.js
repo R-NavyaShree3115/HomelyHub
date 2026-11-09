@@ -1,10 +1,20 @@
 import { Groq } from "groq-sdk/client.js";
-import dotenv from "dotenv";
 
-dotenv.config();
+let groq;
 
-const groq = new Groq({
-    apiKey:process.env.GROQ_API_KEY
-});
+const getGroqClient = () => {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+        const error = new Error("AI service is not configured");
+        error.code = "AI_PROVIDER_NOT_CONFIGURED";
+        throw error;
+    }
 
-export default groq;
+    if (!groq) {
+        groq = new Groq({ apiKey });
+    }
+
+    return groq;
+};
+
+export default getGroqClient;
