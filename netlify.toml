@@ -3,6 +3,15 @@
   command = "npm run build"
   publish = "dist"
 
+# Proxy API calls to the Render backend. Same-origin requests keep the
+# login cookie first-party and avoid CORS. This must stay above the SPA
+# fallback, because Netlify applies the first matching rule.
+[[redirects]]
+  from = "/api/*"
+  to = "https://homelyhub-api.onrender.com/api/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
