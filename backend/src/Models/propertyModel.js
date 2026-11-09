@@ -133,4 +133,4 @@ propertySchema.pre("save", async function () {
 
 // Mongoose middleware to hash the password before saving the user
 //const Property =  mongoose.model("Property", propertySchema);
-export const Property =mongoose.model.Property || mongoose.model("Property",propertySchema);
+export const Property =mongoose.models.Property || mongoose.model("Property",propertySchema);

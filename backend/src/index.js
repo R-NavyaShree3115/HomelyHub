@@ -30,6 +30,10 @@ app.use("/api/v1/rent/property", propertyRouter);//mount the router on the /api/
 app.use("/api/v1/rent/user/booking",bookingRouter);
 connectDB();//establish a connection to the MongoDB database
 
+app.use(cors({
+    origin: process.env.FRONTEND_URL,//allow requests from the specified frontend URL
+    credentials: true,//allow cookies to be sent with requests
+  }));
 app.listen(PORT,()=>{
     console.log(`App is running  on the port http://localhost:${PORT}`);
     
